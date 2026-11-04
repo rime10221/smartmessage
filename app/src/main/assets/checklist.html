@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>콜 체크리스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+:root{
+  --bg:#f5f8f8; --surface:#ffffff; --surface-2:#eef3f4; --fg:#15242b; --muted:#5d6d75;
+  --line:#dde5e8; --accent:#0e8f8a; --accent-weak:#d6efed; --todo:#c1671a; --done:#2f8f4e;
+  --shadow:0 1px 2px rgba(20,40,50,.06),0 6px 20px rgba(20,40,50,.06);
+  --font:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e1518; --surface:#161f24; --surface-2:#1e2a30; --fg:#e6eef1; --muted:#93a4ac;
+  --line:#26343b; --accent:#2db9b1; --accent-weak:#0f312f; --todo:#e3933f; --done:#4cc06f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px rgba(0,0,0,.35); color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.45;font-size:14px;-webkit-text-size-adjust:100%}
+h1{margin:0;font-size:1.18rem;font-weight:800;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+
+.top{position:sticky;top:0;z-index:15;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top-inner{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;flex-direction:column;gap:9px;max-width:620px;margin:0 auto}
+.daynav{display:flex;align-items:center;gap:6px}
+.daynav .nav{width:34px;height:34px;flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:9px;font-size:1.1rem;line-height:1;display:flex;align-items:center;justify-content:center}
+.daynav .nav:active{background:var(--surface-2)}
+.daylabel{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:9px;height:34px;font-weight:700;font-size:.92rem;padding:0 12px}
+.daylabel.today{border-color:var(--accent);color:var(--accent);background:var(--accent-weak)}
+.summary{font-size:.86rem;color:var(--muted);font-weight:500}
+.summary b{color:var(--fg)}
+.summary .sep{opacity:.5;margin:0 6px}
+.filters{display:flex;gap:7px}
+.chip{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:9px;padding:7px 0;font-size:.85rem;font-weight:700}
+.chip.active{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+main{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:14px;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.group{margin-bottom:18px}
+.group-head{display:flex;align-items:baseline;gap:8px;margin:0 2px 8px;color:var(--muted)}
+.group-head .hr{font-size:.92rem;font-weight:800;color:var(--fg);letter-spacing:-.01em}
+.group-head .cnt{font-size:.74rem;font-weight:600}
+.group-line{flex:1;height:1px;background:var(--line)}
+.calls{display:flex;flex-direction:column;gap:8px}
+.call{display:flex;align-items:flex-start;gap:11px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--todo);border-radius:12px;padding:11px 12px;box-shadow:var(--shadow)}
+.call.done{border-left-color:var(--done);opacity:.72}
+.check{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:2px solid var(--todo);background:transparent;color:transparent;font-size:1rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.call.done .check{background:var(--done);border-color:var(--done);color:#fff}
+.call-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.call-time{font-size:1.02rem;font-weight:800;letter-spacing:-.01em}
+.call.done .call-time{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--fg) 40%,transparent)}
+.done-at{font-size:.74rem;font-weight:600;color:var(--done);text-decoration:none;margin-left:7px}
+.note{width:100%;border:none;background:transparent;color:var(--fg);font-size:.88rem;padding:3px 0;border-bottom:1px dashed transparent}
+.note::placeholder{color:var(--muted);opacity:.65}
+.note:focus{outline:none;border-bottom-color:var(--accent)}
+.del{flex:0 0 auto;width:30px;height:30px;border:none;background:transparent;color:var(--muted);font-size:.95rem;border-radius:8px;margin-top:1px}
+.del:active{background:var(--surface-2)}
+
+.state{text-align:center;color:var(--muted);padding:48px 20px}
+.state .big{font-size:2.2rem;margin-bottom:10px}
+.state .t{font-weight:700;color:var(--fg);font-size:1rem;margin-bottom:4px}
+.state .s{font-size:.86rem}
+
+.fab-wrap{position:fixed;left:0;right:0;bottom:0;z-index:16;display:flex;justify-content:center;padding:0 16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none;background:linear-gradient(to top,var(--bg) 42%,transparent)}
+.fab{pointer-events:auto;width:100%;max-width:588px;border:none;background:var(--accent);color:#fff;font-weight:800;font-size:1.02rem;border-radius:14px;padding:15px 0;box-shadow:0 6px 20px color-mix(in srgb,var(--accent) 40%,transparent)}
+.fab:active{filter:brightness(.94)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <h1>콜 체크리스트</h1>
+    <div class="daynav">
+      <button class="nav" id="prevDay" aria-label="이전 날">‹</button>
+      <button class="daylabel today" id="dayLabel">오늘</button>
+      <button class="nav" id="nextDay" aria-label="다음 날">›</button>
+    </div>
+    <div class="summary" id="summary">기록 없음</div>
+    <div class="filters">
+      <button class="chip active" data-f="all">전체</button>
+      <button class="chip" data-f="todo">미처리</button>
+      <button class="chip" data-f="done">완료</button>
+    </div>
+  </div>
+</header>
+<main id="list"></main>
+<div class="fab-wrap"><button class="fab" id="fab">＋ 콜 기록</button></div>
+
+<script>
+(function(){
+  "use strict";
+  var DAY=86400000, WD=["일","월","화","수","목","금","토"];
+  var NA=window.Native||null;
+  var calls=[], filter="all", pendingRender=false;
+  var selDay=startOfDay(Date.now());
+
+  function startOfDay(ms){var d=new Date(ms);d.setHours(0,0,0,0);return d.getTime();}
+  function pad(n){return (n<10?"0":"")+n;}
+  function hm(ms){var d=new Date(ms);return pad(d.getHours())+":"+pad(d.getMinutes());}
+
+  function lsGet(){try{return JSON.parse(localStorage.getItem("cc_calls")||"[]");}catch(e){return [];}}
+  function lsSet(){try{localStorage.setItem("cc_calls",JSON.stringify(calls));}catch(e){}}
+
+  function parse(s){try{return JSON.parse(s||"[]");}catch(e){return [];}}
+
+  function refresh(){
+    if(NA){ calls=parse(NA.list()); } else { calls=lsGet(); }
+    render();
+  }
+  window.__reload=refresh;
+
+  function addCall(){
+    var now=Date.now(); selDay=startOfDay(now); filter="all";
+    if(NA){ calls=parse(NA.add(String(now))); }
+    else { calls.push({id:"l"+now+"_"+Math.floor(Math.random()*1e6),t:now,note:"",done:false,doneT:null}); lsSet(); }
+    render();
+  }
+  function toggleDone(c){
+    if(NA){ calls=parse(NA.toggle(c.id)); }
+    else { c.done=!c.done; c.doneT=c.done?Date.now():null; lsSet(); }
+    render();
+  }
+  function writeNote(c,val){
+    if((c.note||"")===val) return;
+    if(NA){ calls=parse(NA.setNote(c.id,val)); }
+    else { c.note=val; lsSet(); }
+  }
+  function removeCall(c){
+    if(NA){ calls=parse(NA.remove(c.id)); }
+    else { calls=calls.filter(function(x){return x.id!==c.id;}); lsSet(); }
+    render();
+  }
+
+  function dayLabelText(){
+    var today=startOfDay(Date.now());
+    var d=new Date(selDay);
+    var base=(d.getMonth()+1)+"/"+d.getDate()+"("+WD[d.getDay()]+")";
+    if(selDay===today)return "오늘 "+base;
+    if(selDay===today-DAY)return "어제 "+base;
+    if(selDay===today+DAY)return "내일 "+base;
+    return base;
+  }
+
+  function render(){
+    var ae=document.activeElement;
+    if(ae&&ae.classList&&ae.classList.contains("note")){ pendingRender=true; return; }
+    pendingRender=false;
+
+    var today=startOfDay(Date.now());
+    var dl=document.getElementById("dayLabel");
+    dl.textContent=dayLabelText();
+    dl.classList.toggle("today",selDay===today);
+
+    var dayCalls=calls.filter(function(c){return c.t>=selDay&&c.t<selDay+DAY;});
+    var doneN=dayCalls.filter(function(c){return c.done;}).length;
+    var todoN=dayCalls.length-doneN;
+    var sum=document.getElementById("summary");
+    if(dayCalls.length===0){ sum.textContent="기록 없음"; }
+    else { sum.innerHTML="미처리 <b>"+todoN+"</b><span class='sep'>·</span>완료 <b>"+doneN+"</b>"; }
+
+    document.querySelectorAll(".chip").forEach(function(ch){
+      ch.classList.toggle("active",ch.getAttribute("data-f")===filter);
+    });
+
+    var list=document.getElementById("list");
+    list.textContent="";
+
+    var shown=dayCalls.filter(function(c){return filter==="all"||(filter==="todo"&&!c.done)||(filter==="done"&&c.done);});
+    shown.sort(function(a,b){return a.t-b.t;});
+
+    if(shown.length===0){
+      if(dayCalls.length===0){
+        list.appendChild(stateEl("📋","아직 기록된 콜이 없어요","콜이 오면 자동으로 추가됩니다. 직접 추가하려면 아래 ‘＋ 콜 기록’."));
+      }else{
+        list.appendChild(stateEl("","표시할 항목이 없어요",filter==="todo"?"미처리 콜이 없습니다.":"완료된 콜이 없습니다."));
+      }
+      return;
+    }
+
+    var groups={}, order=[];
+    shown.forEach(function(c){
+      var h=new Date(c.t).getHours();
+      if(!groups[h]){groups[h]=[];order.push(h);}
+      groups[h].push(c);
+    });
+    order.forEach(function(h){
+      var g=document.createElement("section"); g.className="group";
+      var head=document.createElement("div"); head.className="group-head";
+      var hr=document.createElement("span"); hr.className="hr tnum"; hr.textContent=pad(h)+":00";
+      var cnt=document.createElement("span"); cnt.className="cnt"; cnt.textContent=groups[h].length+"건";
+      var line=document.createElement("span"); line.className="group-line";
+      head.appendChild(hr); head.appendChild(cnt); head.appendChild(line);
+      g.appendChild(head);
+      var wrap=document.createElement("div"); wrap.className="calls";
+      groups[h].forEach(function(c){ wrap.appendChild(callEl(c)); });
+      g.appendChild(wrap);
+      list.appendChild(g);
+    });
+  }
+
+  function stateEl(big,t,s){
+    var el=document.createElement("div"); el.className="state";
+    if(big){var b=document.createElement("div");b.className="big";b.textContent=big;el.appendChild(b);}
+    var tt=document.createElement("div");tt.className="t";tt.textContent=t;el.appendChild(tt);
+    var ss=document.createElement("div");ss.className="s";ss.textContent=s;el.appendChild(ss);
+    return el;
+  }
+
+  function callEl(c){
+    var el=document.createElement("div"); el.className="call"+(c.done?" done":"");
+    var chk=document.createElement("button"); chk.className="check"; chk.type="button";
+    chk.setAttribute("aria-label",c.done?"완료 취소":"완료 표시"); chk.textContent="✓";
+    chk.addEventListener("click",function(){toggleDone(c);});
+    var main=document.createElement("div"); main.className="call-main";
+    var time=document.createElement("div"); time.className="call-time tnum"; time.textContent=hm(c.t);
+    if(c.done&&c.doneT){var da=document.createElement("span");da.className="done-at tnum";da.textContent="완료 "+hm(c.doneT);time.appendChild(da);}
+    var note=document.createElement("input"); note.className="note"; note.type="text";
+    note.placeholder="메모 (선택)"; note.value=c.note||""; note.maxLength=80;
+    note.setAttribute("enterkeyhint","done");
+    note.addEventListener("keydown",function(e){if(e.key==="Enter"){note.blur();}});
+    note.addEventListener("blur",function(){ writeNote(c,note.value.trim()); if(pendingRender)render(); });
+    main.appendChild(time); main.appendChild(note);
+    var del=document.createElement("button"); del.className="del"; del.type="button";
+    del.setAttribute("aria-label","삭제"); del.textContent="✕";
+    del.addEventListener("click",function(){removeCall(c);});
+    el.appendChild(chk); el.appendChild(main); el.appendChild(del);
+    return el;
+  }
+
+  document.getElementById("fab").addEventListener("click",addCall);
+  document.getElementById("prevDay").addEventListener("click",function(){selDay-=DAY;render();});
+  document.getElementById("nextDay").addEventListener("click",function(){selDay+=DAY;render();});
+  document.getElementById("dayLabel").addEventListener("click",function(){selDay=startOfDay(Date.now());render();});
+  document.querySelectorAll(".chip").forEach(function(ch){
+    ch.addEventListener("click",function(){filter=ch.getAttribute("data-f");render();});
+  });
+
+  refresh();
+  // 앱이 포그라운드로 돌아올 때 네이티브가 window.__reload() 를 호출함
+})();
+</script>
+</body>
+</html>
