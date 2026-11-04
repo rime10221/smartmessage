@@ -5,9 +5,15 @@ on:
     branches: [ main ]
   workflow_dispatch: {}
 
+# 같은 브랜치에서 새 실행이 뜨면 진행 중(멈춘) 실행을 자동 취소
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +42,12 @@ jobs:
           gradle-version: '8.7'
 
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=60000 -Dorg.gradle.internal.http.socketTimeout=60000"
+        run: >
+          gradle assembleDebug
+          --no-daemon --stacktrace --console=plain
+          -Dkotlin.compiler.execution.strategy=in-process
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
